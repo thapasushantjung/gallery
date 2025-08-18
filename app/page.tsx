@@ -219,7 +219,7 @@ const Panorama = () => {
   return (
     <>
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div className="panorama-box" style={{ width: '100%' }}>
+        <div className="panorama-box" style={{ width: '100%', overflow: 'visible', paddingTop: '8vh', paddingBottom: '8vh' }}>
           <div className="panorama-slider">
             <div className="swiper">
               <div className="swiper-wrapper">
@@ -307,7 +307,7 @@ const Panorama = () => {
         .panorama-slider .swiper,
         .panorama-slider .swiper-wrapper,
         .panorama-slider .swiper-slide {
-          height: 57vh !important;
+          height: 50vh !important;
         }
         /* Ensure slides shrink to the image width so spaceBetween controls the visible gap */
         .panorama-slider .swiper-slide { width: auto !important; }
@@ -321,7 +321,20 @@ const Panorama = () => {
           object-fit: cover;
           max-width: none !important;
           max-height: none !important;
+        }        /* Allow 3D overflow to be visible so content isn't clipped */
+        .panorama-box { 
+          overflow: visible; 
+          padding-block: 20vh !important; 
+          perspective: 1200px;
+          perspective-origin: center center;
         }
+        .panorama-slider { 
+          overflow: visible !important;
+          transform-style: preserve-3d;
+        }
+        .panorama-slider .swiper,
+        .panorama-slider .swiper-wrapper,
+        .panorama-slider .swiper-slide { overflow: visible !important; }
       `}</style>
     </>
   );
