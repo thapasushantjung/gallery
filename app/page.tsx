@@ -67,7 +67,8 @@ const Panorama = () => {
 
       swiperInstance = new SwiperCtor(".panorama-slider .swiper", {
         effect: "panorama",
-        slidesPerView: 1.5,
+        slidesPerView: "auto",
+        spaceBetween: 8, // tighter minimal non-zero gap between slides
         loop: true,
         loopAdditionalSlides: 1,
         centeredSlides: true,
@@ -83,10 +84,10 @@ const Panorama = () => {
         },
         panoramaEffect: { depth: 150, rotate: 45 },
         breakpoints: {
-          480: { slidesPerView: 2, panoramaEffect: { rotate: 35, depth: 150 } },
-          640: { slidesPerView: 3, panoramaEffect: { rotate: 30, depth: 150 } },
-          1024: { slidesPerView: 4, panoramaEffect: { rotate: 30, depth: 200 } },
-          1200: { slidesPerView: 4, panoramaEffect: { rotate: 25, depth: 250 } },
+          480: { panoramaEffect: { rotate: 35, depth: 150 } },
+          640: { panoramaEffect: { rotate: 30, depth: 150 } },
+          1024: { panoramaEffect: { rotate: 30, depth: 200 } },
+          1200: { panoramaEffect: { rotate: 25, depth: 250 } },
         },
         // Use custom plugin alongside bundle
         modules: [PanoramaPlugin],
@@ -227,6 +228,7 @@ const Panorama = () => {
                     className="slide-image"
                     src="https://cdn.pixabay.com/photo/2023/07/19/12/16/car-8136751_1280.jpg"
                     alt=""
+                    style={{ width: '600px', height: '840px', objectFit: 'cover', display: 'block' }}
                   />
                 </div>
                 <div className="swiper-slide">
@@ -234,6 +236,7 @@ const Panorama = () => {
                     className="slide-image"
                     src="https://cdn.pixabay.com/photo/2023/03/22/07/52/lizard-7868932_1280.jpg"
                     alt=""
+                    style={{ width: '600px', height: '840px', objectFit: 'cover', display: 'block' }}
                   />
                 </div>
                 <div className="swiper-slide">
@@ -241,6 +244,7 @@ const Panorama = () => {
                     className="slide-image"
                     src="https://cdn.pixabay.com/photo/2016/11/14/04/45/elephant-1822636_1280.jpg"
                     alt=""
+                    style={{ width: '600px', height: '840px', objectFit: 'cover', display: 'block' }}
                   />
                 </div>
                 <div className="swiper-slide">
@@ -248,6 +252,7 @@ const Panorama = () => {
                     className="slide-image"
                     src="https://cdn.pixabay.com/photo/2023/10/19/21/08/ai-generated-8327632_1280.jpg"
                     alt=""
+                    style={{ width: '600px', height: '840px', objectFit: 'cover', display: 'block' }}
                   />
                 </div>
                 <div className="swiper-slide">
@@ -255,6 +260,7 @@ const Panorama = () => {
                     className="slide-image"
                     src="https://cdn.pixabay.com/photo/2016/05/18/10/52/buick-1400243_1280.jpg"
                     alt=""
+                    style={{ width: '600px', height: '840px', objectFit: 'cover', display: 'block' }}
                   />
                 </div>
                 <div className="swiper-slide">
@@ -262,6 +268,7 @@ const Panorama = () => {
                     className="slide-image"
                     src="https://cdn.pixabay.com/photo/2023/03/27/08/53/woman-7880177_1280.jpg"
                     alt=""
+                    style={{ width: '600px', height: '840px', objectFit: 'cover', display: 'block' }}
                   />
                 </div>
                 <div className="swiper-slide">
@@ -269,6 +276,7 @@ const Panorama = () => {
                     className="slide-image"
                     src="https://cdn.pixabay.com/photo/2019/08/08/23/33/car-4393990_1280.jpg"
                     alt=""
+                    style={{ width: '600px', height: '840px', objectFit: 'cover', display: 'block' }}
                   />
                 </div>
                 <div className="swiper-slide">
@@ -276,6 +284,7 @@ const Panorama = () => {
                     className="slide-image"
                     src="https://cdn.pixabay.com/photo/2019/09/04/02/52/forest-4450611_1280.jpg"
                     alt=""
+                    style={{ width: '600px', height: '840px', objectFit: 'cover', display: 'block' }}
                   />
                 </div>
               </div>
@@ -293,6 +302,27 @@ const Panorama = () => {
           </div>
         </div>
       </div>
+      <style jsx>{`
+        /* Make the carousel 60% of the viewport height */
+        .panorama-slider .swiper,
+        .panorama-slider .swiper-wrapper,
+        .panorama-slider .swiper-slide {
+          height: 57vh !important;
+        }
+        /* Ensure slides shrink to the image width so spaceBetween controls the visible gap */
+        .panorama-slider .swiper-slide { width: auto !important; }
+        
+        /* Images: keep portrait 600x840 ratio, scale with slider height */
+        .panorama-slider .slide-image {
+          height: 100% !important;         /* equals 60vh via slide height */
+          width: auto !important;          /* let aspect-ratio compute width */
+          aspect-ratio: 600 / 840;         /* 5:7 portrait */
+          display: block;
+          object-fit: cover;
+          max-width: none !important;
+          max-height: none !important;
+        }
+      `}</style>
     </>
   );
 };
