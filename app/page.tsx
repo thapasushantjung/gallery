@@ -217,78 +217,80 @@ const Panorama = () => {
 
   return (
     <>
-      <div className="panorama-slider">
-        <div className="swiper">
-          <div className="swiper-wrapper">
-            <div className="swiper-slide">
-              <img
-                className="slide-image"
-                src="https://cdn.pixabay.com/photo/2023/07/19/12/16/car-8136751_1280.jpg"
-                alt=""
-              />
-            </div>
-            <div className="swiper-slide">
-              <img
-                className="slide-image"
-                src="https://cdn.pixabay.com/photo/2023/03/22/07/52/lizard-7868932_1280.jpg"
-                alt=""
-              />
-            </div>
-            <div className="swiper-slide">
-              <img
-                className="slide-image"
-                src="https://cdn.pixabay.com/photo/2016/11/14/04/45/elephant-1822636_1280.jpg"
-                alt=""
-              />
-            </div>
-            <div className="swiper-slide">
-              <img
-                className="slide-image"
-                src="https://cdn.pixabay.com/photo/2023/10/19/21/08/ai-generated-8327632_1280.jpg"
-                alt=""
-              />
-            </div>
-            <div className="swiper-slide">
-              <img
-                className="slide-image"
-                src="https://cdn.pixabay.com/photo/2016/05/18/10/52/buick-1400243_1280.jpg"
-                alt=""
-              />
-            </div>
-            <div className="swiper-slide">
-              <img
-                className="slide-image"
-                src="https://cdn.pixabay.com/photo/2023/03/27/08/53/woman-7880177_1280.jpg"
-                alt=""
-              />
-            </div>
-            <div className="swiper-slide">
-              <img
-                className="slide-image"
-                src="https://cdn.pixabay.com/photo/2019/08/08/23/33/car-4393990_1280.jpg"
-                alt=""
-              />
-            </div>
-            <div className="swiper-slide">
-              <img
-                className="slide-image"
-                src="https://cdn.pixabay.com/photo/2019/09/04/02/52/forest-4450611_1280.jpg"
-                alt=""
-              />
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div className="panorama-box" style={{ width: '100%' }}>
+          <div className="panorama-slider">
+            <div className="swiper">
+              <div className="swiper-wrapper">
+                <div className="swiper-slide">
+                  <img
+                    className="slide-image"
+                    src="https://cdn.pixabay.com/photo/2023/07/19/12/16/car-8136751_1280.jpg"
+                    alt=""
+                  />
+                </div>
+                <div className="swiper-slide">
+                  <img
+                    className="slide-image"
+                    src="https://cdn.pixabay.com/photo/2023/03/22/07/52/lizard-7868932_1280.jpg"
+                    alt=""
+                  />
+                </div>
+                <div className="swiper-slide">
+                  <img
+                    className="slide-image"
+                    src="https://cdn.pixabay.com/photo/2016/11/14/04/45/elephant-1822636_1280.jpg"
+                    alt=""
+                  />
+                </div>
+                <div className="swiper-slide">
+                  <img
+                    className="slide-image"
+                    src="https://cdn.pixabay.com/photo/2023/10/19/21/08/ai-generated-8327632_1280.jpg"
+                    alt=""
+                  />
+                </div>
+                <div className="swiper-slide">
+                  <img
+                    className="slide-image"
+                    src="https://cdn.pixabay.com/photo/2016/05/18/10/52/buick-1400243_1280.jpg"
+                    alt=""
+                  />
+                </div>
+                <div className="swiper-slide">
+                  <img
+                    className="slide-image"
+                    src="https://cdn.pixabay.com/photo/2023/03/27/08/53/woman-7880177_1280.jpg"
+                    alt=""
+                  />
+                </div>
+                <div className="swiper-slide">
+                  <img
+                    className="slide-image"
+                    src="https://cdn.pixabay.com/photo/2019/08/08/23/33/car-4393990_1280.jpg"
+                    alt=""
+                  />
+                </div>
+                <div className="swiper-slide">
+                  <img
+                    className="slide-image"
+                    src="https://cdn.pixabay.com/photo/2019/09/04/02/52/forest-4450611_1280.jpg"
+                    alt=""
+                  />
+                </div>
+              </div>
+              <div className="swiper-pagination"></div>
+              {/* moved scrollbar out of .swiper */}
             </div>
           </div>
-          <div className="swiper-pagination"></div>
-          {/* moved scrollbar out of .swiper */}
-        </div>
-      </div>
-      {/* Controls moved fully below the carousel for clear separation */}
-      <div className="panorama-controls" style={{ marginTop: 16 }}>
-        {/* Swiper draggable scrollbar placed outside, separating it from the carousel */}
-        <div className="swiper-scrollbar" style={{ marginBottom: 12 }}></div>
-        {/* Percentage scrollbar/control */}
-        <div className="swiper-percentage">
-          <input id="swiper-percent" type="range" min="0" max="100" step="1" defaultValue="0" style={{ width: '100%' }} />
-          <span id="swiper-percent-label" style={{ marginLeft: '8px' }}>0%</span>
+          {/* Controls below the carousel inside the same box */}
+          <div className="panorama-controls" style={{ marginTop: 16 }}>
+            <div className="swiper-scrollbar" style={{ marginBottom: 12 }}></div>
+            <div className="swiper-percentage">
+              <input id="swiper-percent" type="range" min="0" max="100" step="1" defaultValue="0" style={{ width: '100%' }} />
+              <span id="swiper-percent-label" style={{ marginLeft: '8px' }}>0%</span>
+            </div>
+          </div>
         </div>
       </div>
     </>
