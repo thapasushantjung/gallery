@@ -1,8 +1,10 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { PanoramaPlugin } from '../utils/panoramaPlugin';
 import { swiperConfig, AUTO_PROGRESS_DURATION, DEMO_CSS_HREF, SWIPER_JS_SRC } from '../config/swiperConfig';
 
 export const usePanoramaSlider = () => {
+  const scrollTween = useRef<gsap.core.Tween | null>(null);
+
   useEffect(() => {
     // Add the external CSS link for demo styles (if not already present)
     let link = document.querySelector(`link[href="${DEMO_CSS_HREF}"]`) as HTMLLinkElement | null;
@@ -17,9 +19,34 @@ export const usePanoramaSlider = () => {
     let stopAuto: (() => void) | null = null;
     let removeAutoListeners: (() => void) | null = null;
 
-    const initSwiper = () => {
+    const initSwiper = async () => {
       const SwiperCtor = (window as any).Swiper;
       if (!SwiperCtor) return;
+
+      try {
+        const gsapMod: any = await import('gsap');
+        const { ScrollToPlugin } = await import('gsap/ScrollToPlugin');
+        const gsap = gsapMod.gsap || gsapMod.default || gsapMod;
+        gsap.registerPlugin(ScrollToPlugin);
+
+        // Auto-scroll the page
+        scrollTween.current = gsap.to(window, {
+          scrollTo: { y: "max", autoKill: false },
+          duration: 40,
+          ease: 'none',
+          repeat: -1,
+          yoyo: true,
+        });
+
+        const panoramaBox = document.querySelector('.swiper');
+        if (panoramaBox) {
+          panoramaBox.addEventListener('mouseenter', () => scrollTween.current?.pause());
+          panoramaBox.addEventListener('mouseleave', () => scrollTween.current?.resume());
+        }
+
+      } catch (e) {
+        console.error("Failed to load GSAP or ScrollToPlugin", e);
+      }
 
       swiperInstance = new SwiperCtor(".panorama-slider .swiper", {
         ...swiperConfig,
@@ -52,6 +79,9 @@ export const usePanoramaSlider = () => {
 
     // Cleanup on unmount
     return () => {
+      if (scrollTween.current) {
+        scrollTween.current.kill();
+      }
       if (stopAuto) stopAuto();
       if (removeAutoListeners) removeAutoListeners();
       if (swiperInstance && typeof swiperInstance.destroy === "function") {

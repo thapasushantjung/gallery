@@ -4,6 +4,7 @@ import { usePanoramaSlider } from '../hooks/usePanoramaSlider';
 import { SlideImage } from './SlideImage';
 import { PanoramaControls } from './PanoramaControls';
 import { panoramaStyles } from '../styles/panoramaStyles';
+import Title from "./Title";
 
 const slideImages = [
   "https://cdn.pixabay.com/photo/2023/07/19/12/16/car-8136751_1280.jpg",
@@ -22,6 +23,8 @@ export const PanoramaSlider: React.FC = () => {
   return (
     <>
       <div className="panorama-section">
+        <div className="absolute top-1/5 left-1/2 -translate-x-1/2 -translate-y-1/2 z-500">
+<Title title="SUSHANT GALLERY" />        </div>
         <div className="panorama-box" style={{ width: '100%', overflow: 'visible' }}>
           <div className="panorama-slider">
             <div className="swiper">
