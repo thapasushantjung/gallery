@@ -21,8 +21,8 @@ export const PanoramaSlider: React.FC = () => {
 
   return (
     <>
-      <div className="panorama-section" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
-        <div className="panorama-box" style={{ width: '100%', overflow: 'visible', paddingTop: '8vh', paddingBottom: '8vh' }}>
+      <div className="panorama-section">
+        <div className="panorama-box" style={{ width: '100%', overflow: 'visible' }}>
           <div className="panorama-slider">
             <div className="swiper">
               <div className="swiper-wrapper">
@@ -30,10 +30,10 @@ export const PanoramaSlider: React.FC = () => {
                   <SlideImage key={index} src={src} alt={`Slide ${index + 1}`} />
                 ))}
               </div>
-              <div className="swiper-pagination"></div>
+              {/* <div className="swiper-pagination"></div> */}
             </div>
           </div>
-          <PanoramaControls />
+          {/* <PanoramaControls /> */}
         </div>
       </div>
       <style jsx>{panoramaStyles}</style>

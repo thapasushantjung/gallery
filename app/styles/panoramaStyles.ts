@@ -29,7 +29,7 @@ export const panoramaStyles = `
   /* Allow 3D overflow to be visible so content isn't clipped */
   .panorama-box { 
     overflow: visible; 
-    padding-block: 20vh !important; 
+    padding-top: 20vh; /* Adjust as needed */
     perspective: 1200px;
     perspective-origin: center center;
   }

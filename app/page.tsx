@@ -2,7 +2,11 @@ import React from 'react';
 import { PanoramaSlider } from './components/PanoramaSlider';
 
 const Panorama = () => {
-  return <PanoramaSlider />;
+
+  return <div >
+
+    <PanoramaSlider />;
+  </div> 
 };
 
 export default Panorama;
