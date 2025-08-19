@@ -1,9 +1,20 @@
 import { useEffect, useRef } from 'react';
 import { PanoramaPlugin } from '../utils/panoramaPlugin';
 import { swiperConfig, AUTO_PROGRESS_DURATION, DEMO_CSS_HREF, SWIPER_JS_SRC } from '../config/swiperConfig';
+import gsap from 'gsap';
+
+// Gentle ramp-in when resuming auto-scroll so it feels smooth
+const AUTO_RAMP_IN = 0.45; // seconds
 
 export const usePanoramaSlider = () => {
   const scrollTween = useRef<gsap.core.Tween | null>(null);
+  const rampTween = useRef<gsap.core.Tween | null>(null);
+  // Track UI/scroll state for robust syncing
+  const isHoveringRef = useRef(false);
+  const isAutoScrollingRef = useRef(false);
+  const resumeTO = useRef<number | null>(null);
+  const lastScrollY = useRef(0);
+  const lastDir = useRef<1 | -1>(1);
 
   useEffect(() => {
     // Add the external CSS link for demo styles (if not already present)
@@ -26,40 +37,177 @@ export const usePanoramaSlider = () => {
       try {
         const gsapMod: any = await import('gsap');
         const { ScrollToPlugin } = await import('gsap/ScrollToPlugin');
-        const gsap = gsapMod.gsap || gsapMod.default || gsapMod;
-        gsap.registerPlugin(ScrollToPlugin);
+        const gsapLocal = gsapMod.gsap || gsapMod.default || gsapMod;
+        gsapLocal.registerPlugin(ScrollToPlugin);
 
-        // Auto-scroll the page
-        scrollTween.current = gsap.to(window, {
-          scrollTo: { y: "max", autoKill: false },
-          duration: 40,
-          ease: 'none',
-          repeat: -1,
-          yoyo: true,
+        // Helper utilities for auto-scroll management
+        const getScrollMax = () => {
+          const doc = document.documentElement;
+          const body = document.body;
+          return Math.max(doc.scrollHeight, body.scrollHeight) - window.innerHeight;
+        };
+        const clearResumeTO = () => {
+          if (resumeTO.current != null) {
+            window.clearTimeout(resumeTO.current);
+            resumeTO.current = null;
+          }
+        };
+        const killAutoScroll = () => {
+          if (rampTween.current) {
+            try { rampTween.current.kill(); } catch {}
+            rampTween.current = null;
+          }
+          if (scrollTween.current) {
+            try { scrollTween.current.kill(); } catch {}
+            scrollTween.current = null;
+          }
+          isAutoScrollingRef.current = false;
+          clearResumeTO();
+        };
+        const startAutoScroll = (dir?: 1 | -1) => {
+          // Start from current position toward 0 or max; when done, flip direction and continue.
+          const direction: 1 | -1 = dir ?? lastDir.current ?? 1;
+          const max = Math.max(0, getScrollMax());
+          const curr = window.scrollY || window.pageYOffset || 0;
+          const target = direction > 0 ? max : 0;
+          const distance = Math.max(0, Math.abs(target - curr));
+          // Keep a similar overall speed as previous implementation (~40s for full travel)
+          const fullDuration = 40; // seconds end-to-end
+          const speed = max > 0 ? max / fullDuration : 0; // px/sec
+          const duration = speed > 0 ? distance / speed : 0;
+
+          // If already at the end, flip direction immediately
+          if (duration < 0.02) {
+            lastDir.current = (direction > 0 ? -1 : 1);
+            return startAutoScroll(lastDir.current);
+          }
+
+          // Kill any existing tween and start fresh from current position to avoid jumps
+          killAutoScroll();
+          scrollTween.current = gsapLocal.to(window, {
+            scrollTo: { y: target, autoKill: false },
+            duration,
+            ease: 'none',
+            onStart: () => { isAutoScrollingRef.current = true; },
+            onUpdate: () => { isAutoScrollingRef.current = true; },
+            onComplete: () => { isAutoScrollingRef.current = false; startAutoScroll((direction > 0 ? -1 : 1)); },
+          });
+          // Smoothly accelerate into auto-scroll so it doesn't feel abrupt
+          if (scrollTween.current) {
+            try { (scrollTween.current as any).timeScale?.(0.001); } catch {}
+            try {
+              rampTween.current = gsapLocal.to(scrollTween.current, {
+                timeScale: 1,
+                duration: AUTO_RAMP_IN,
+                ease: 'power2.out',
+              });
+            } catch {}
+          }
+          lastDir.current = direction;
+        };
+        const pauseAuto = () => {
+          if (rampTween.current) {
+            try { rampTween.current.kill(); } catch {}
+            rampTween.current = null;
+          }
+          if (scrollTween.current) scrollTween.current.pause();
+          clearResumeTO();
+        };
+        const scheduleResume = () => {
+          if (isHoveringRef.current) return; // never resume while hovering the panorama
+          clearResumeTO();
+          resumeTO.current = window.setTimeout(() => {
+            startAutoScroll(lastDir.current);
+          }, 700);
+        };
+
+        const onWheel = (e: WheelEvent) => {
+          // Any manual wheel input pauses auto and stores direction
+          const dy = e.deltaY || 0;
+          if (dy !== 0) lastDir.current = dy > 0 ? 1 : -1;
+          killAutoScroll();
+          scheduleResume();
+        };
+        const onScroll = () => {
+          // Ignore scroll events generated by our own tween
+          if (isAutoScrollingRef.current) return;
+          // Track direction even for non-wheel scrolls (keyboard/touch)
+          const y = window.scrollY || window.pageYOffset || 0;
+          const dy = y - (lastScrollY.current || 0);
+          if (dy !== 0) lastDir.current = dy > 0 ? 1 : -1;
+          lastScrollY.current = y;
+          // Treat as manual input: pause/restart from here
+          killAutoScroll();
+          scheduleResume();
+        };
+        const onKeyDown = (e: KeyboardEvent) => {
+          // Arrow/PageUp/PageDown/Home/End spacebar interactions should pause auto
+          const keys = ['ArrowDown','ArrowUp','PageDown','PageUp','Home','End',' '];
+          if (keys.includes(e.key)) {
+            killAutoScroll();
+            scheduleResume();
+          }
+        };
+        const onTouchStart = () => {
+          killAutoScroll();
+          scheduleResume();
+        };
+
+        const panoramaSection = document.querySelector('.panorama-slider');
+        const onEnter = () => {
+          isHoveringRef.current = true;
+          pauseAuto();
+        };
+        const onLeave = () => {
+          isHoveringRef.current = false;
+          scheduleResume();
+        };
+
+        // Initialize Swiper first
+        swiperInstance = new SwiperCtor(".panorama-slider .swiper", {
+          ...swiperConfig,
+          modules: [PanoramaPlugin],
         });
 
-        const panoramaBox = document.querySelector('.swiper');
-        if (panoramaBox) {
-          panoramaBox.addEventListener('mouseenter', () => scrollTween.current?.pause());
-          panoramaBox.addEventListener('mouseleave', () => scrollTween.current?.resume());
+        // Setup percentage control and auto-progress
+        const { stopAutoFn, removeListenersFn } = setupPercentageControl(swiperInstance);
+        stopAuto = stopAutoFn;
+        removeAutoListeners = removeListenersFn;
+
+        // Drive the swiper with vertical page scroll using GSAP ScrollTrigger
+        await setupScrollTrigger(swiperInstance, stopAuto);
+
+        // Attach hover listeners to the pinned panorama section so manual scrubbing is smooth
+        if (panoramaSection) {
+          panoramaSection.addEventListener('mouseenter', onEnter);
+          panoramaSection.addEventListener('mouseleave', onLeave);
         }
 
+        // Global manual input listeners to pause/resume auto scroll
+        window.addEventListener('wheel', onWheel, { passive: true });
+        window.addEventListener('scroll', onScroll, { passive: true });
+        window.addEventListener('keydown', onKeyDown);
+        window.addEventListener('touchstart', onTouchStart, { passive: true });
+
+        // Start auto-scroll after ScrollTrigger has established layout
+        // Small delay lets ScrollTrigger refresh complete, ensuring correct scroll range
+        setTimeout(() => startAutoScroll(lastDir.current), 0);
+
+        // Store cleanup for listeners
+        (swiperInstance as any)._autoScrollCleanup = () => {
+          if (panoramaSection) {
+            panoramaSection.removeEventListener('mouseenter', onEnter);
+            panoramaSection.removeEventListener('mouseleave', onLeave);
+          }
+          window.removeEventListener('wheel', onWheel as any);
+          window.removeEventListener('scroll', onScroll as any);
+          window.removeEventListener('keydown', onKeyDown as any);
+          window.removeEventListener('touchstart', onTouchStart as any);
+          killAutoScroll();
+        };
       } catch (e) {
         console.error("Failed to load GSAP or ScrollToPlugin", e);
       }
-
-      swiperInstance = new SwiperCtor(".panorama-slider .swiper", {
-        ...swiperConfig,
-        modules: [PanoramaPlugin],
-      });
-
-      // Setup percentage control and auto-progress
-      const { stopAutoFn, removeListenersFn } = setupPercentageControl(swiperInstance);
-      stopAuto = stopAutoFn;
-      removeAutoListeners = removeListenersFn;
-
-      // Drive the swiper with vertical page scroll using GSAP ScrollTrigger
-      setupScrollTrigger(swiperInstance, stopAuto);
     };
 
     // Load Swiper UMD bundle once and init
@@ -80,11 +228,16 @@ export const usePanoramaSlider = () => {
     // Cleanup on unmount
     return () => {
       if (scrollTween.current) {
-        scrollTween.current.kill();
+        try { scrollTween.current.kill(); } catch {}
+        scrollTween.current = null;
       }
       if (stopAuto) stopAuto();
       if (removeAutoListeners) removeAutoListeners();
       if (swiperInstance && typeof swiperInstance.destroy === "function") {
+        // Remove any listeners we attached for auto-scroll
+        if ((swiperInstance as any)._autoScrollCleanup) {
+          try { (swiperInstance as any)._autoScrollCleanup(); } catch {}
+        }
         swiperInstance.destroy(true, true);
       }
       // Kill ScrollTrigger if it exists
@@ -105,20 +258,20 @@ const setupScrollTrigger = async (swiperInstance: any, stopAuto: (() => void) | 
   try {
     const gsapMod: any = await import('gsap');
     const stMod: any = await import('gsap/ScrollTrigger');
-    const gsap = gsapMod.gsap || gsapMod.default || gsapMod;
+    const gsapLocal = gsapMod.gsap || gsapMod.default || gsapMod;
     const ScrollTrigger = stMod.ScrollTrigger || stMod.default || stMod;
-    if (!gsap || !ScrollTrigger) return;
+    if (!gsapLocal || !ScrollTrigger) return;
 
     // Register plugin once
-    if (!gsap.core?.globals()?.ScrollTrigger) {
-      gsap.registerPlugin(ScrollTrigger);
+    if (!(gsapLocal.core?.globals?.() && gsapLocal.core.globals().ScrollTrigger)) {
+      gsapLocal.registerPlugin(ScrollTrigger);
     }
 
     // Pin the stable outer wrapper instead of inner box
     const container = document.querySelector('.panorama-section') as HTMLElement | null;
     if (!container) return;
 
-    // Pause auto progression while scroll-scrubbing
+    // Pause any swiper's internal auto progression while scroll-scrubbing
     if (stopAuto) stopAuto();
 
     // Helper to drive swiper by [0..1]

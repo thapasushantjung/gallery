@@ -4,8 +4,8 @@ import { PanoramaSlider } from './components/PanoramaSlider';
 const Panorama = () => {
 
   return <div >
-
-    <PanoramaSlider />;
+ 
+    <PanoramaSlider  />;
   </div> 
 };
 
