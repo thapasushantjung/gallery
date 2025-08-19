@@ -3,11 +3,19 @@ import React from 'react';
 interface SlideImageProps {
   src: string;
   alt: string;
+  title?: string;
+  description?: string;
+  onHoverEnter?: (payload: { title: string; description: string; src: string; alt: string }) => void;
+  onHoverLeave?: () => void;
 }
 
-export const SlideImage: React.FC<SlideImageProps> = ({ src, alt }) => {
+export const SlideImage: React.FC<SlideImageProps> = ({ src, alt, title = '', description = '', onHoverEnter, onHoverLeave }) => {
   return (
-    <div className="swiper-slide">
+    <div
+      className="swiper-slide"
+      onMouseEnter={() => onHoverEnter?.({ title, description, src, alt })}
+      onMouseLeave={() => onHoverLeave?.()}
+    >
       <img
         className="slide-image"
         src={src}
