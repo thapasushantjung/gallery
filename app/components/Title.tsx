@@ -112,8 +112,14 @@ const Title = ({ title }: { title: string }) => {
         return (
           <span
             key={`${ch}-${i}`}
-            className="inline-block align-baseline overflow-hidden leading-none"
-            style={{ height: "1em", marginRight: "0.02em" }}
+            className="inline-block align-baseline overflow-hidden leading-none relative"
+            style={{
+              height: "1em",
+              marginRight: "0.02em",
+              // Fade the top/bottom edges so the slot-machine scroll looks seamless
+              WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 18%, black 82%, transparent 100%)",
+              maskImage: "linear-gradient(to bottom, transparent 0%, black 18%, black 82%, transparent 100%)",
+            }}
           >
             <div
               className="flex flex-col leading-none"

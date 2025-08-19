@@ -8,19 +8,19 @@ import Title from "./Title";
 import gsap from 'gsap';
 
 const slides = [
-  { src: "https://cdn.pixabay.com/photo/2023/07/19/12/16/car-8136751_1280.jpg", title: "Crimson Velocity", description: "A classic sports car captured at golden hour, radiating power and elegance." },
-  { src: "https://cdn.pixabay.com/photo/2023/03/22/07/52/lizard-7868932_1280.jpg", title: "Emerald Gaze", description: "An inquisitive reptile basking in soft, diffused light with intricate textures." },
-  { src: "https://cdn.pixabay.com/photo/2016/11/14/04/45/elephant-1822636_1280.jpg", title: "Gentle Giant", description: "An elephant crossing a dusty savannah—strength, grace, and patience in motion." },
-  { src: "https://cdn.pixabay.com/photo/2023/10/19/21/08/ai-generated-8327632_1280.jpg", title: "Neon Dreamscape", description: "A surreal cityscape of glowing hues and synthetic reflections." },
-  { src: "https://cdn.pixabay.com/photo/2016/05/18/10/52/buick-1400243_1280.jpg", title: "Vintage Polished", description: "A mint-condition Buick chrome glistening under studio lights." },
-  { src: "https://cdn.pixabay.com/photo/2023/03/27/08/53/woman-7880177_1280.jpg", title: "Candid Reflections", description: "An intimate portrait with delicate highlights and quiet confidence." },
-  { src: "https://cdn.pixabay.com/photo/2019/08/08/23/33/car-4393990_1280.jpg", title: "Urban Motion", description: "Midnight speed trails weaving through the concrete maze." },
-  { src: "https://cdn.pixabay.com/photo/2019/09/04/02/52/forest-4450611_1280.jpg", title: "Forest Reverie", description: "Fog-laced pines embracing the morning hush in deep greens." },
+  { src: "https://cdn.pixabay.com/photo/2023/07/19/12/16/car-8136751_1280.jpg", title: "Crimson Velocity", description: "A classic sports car captured at golden hour, radiating power and elegance.", date: "Jul 2023" },
+  { src: "https://cdn.pixabay.com/photo/2023/03/22/07/52/lizard-7868932_1280.jpg", title: "Emerald Gaze", description: "An inquisitive reptile basking in soft, diffused light with intricate textures.", date: "Mar 2023" },
+  { src: "https://cdn.pixabay.com/photo/2016/11/14/04/45/elephant-1822636_1280.jpg", title: "Gentle Giant", description: "An elephant crossing a dusty savannah—strength, grace, and patience in motion.", date: "Nov 2016" },
+  { src: "https://cdn.pixabay.com/photo/2023/10/19/21/08/ai-generated-8327632_1280.jpg", title: "Neon Dreamscape", description: "A surreal cityscape of glowing hues and synthetic reflections.", date: "Oct 2023" },
+  { src: "https://cdn.pixabay.com/photo/2016/05/18/10/52/buick-1400243_1280.jpg", title: "Vintage Polished", description: "A mint-condition Buick chrome glistening under studio lights.", date: "May 2016" },
+  { src: "https://cdn.pixabay.com/photo/2023/03/27/08/53/woman-7880177_1280.jpg", title: "Candid Reflections", description: "An intimate portrait with delicate highlights and quiet confidence.", date: "Mar 2023" },
+  { src: "https://cdn.pixabay.com/photo/2019/08/08/23/33/car-4393990_1280.jpg", title: "Urban Motion", description: "Midnight speed trails weaving through the concrete maze.", date: "Aug 2019" },
+  { src: "https://cdn.pixabay.com/photo/2019/09/04/02/52/forest-4450611_1280.jpg", title: "Forest Reverie", description: "Fog-laced pines embracing the morning hush in deep greens.", date: "Sep 2019" },
 ];
 
 export const PanoramaSlider: React.FC = () => {
   usePanoramaSlider();
-  const [caption, setCaption] = useState<{ title: string; description: string } | null>(null);
+  const [caption, setCaption] = useState<{ title: string; description: string; date?: string } | null>(null);
   const [captionEl, setCaptionEl] = useState<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -52,7 +52,8 @@ export const PanoramaSlider: React.FC = () => {
                     alt={s.title}
                     title={s.title}
                     description={s.description}
-                    onHoverEnter={({ title, description }) => setCaption({ title, description })}
+                    date={s.date}
+                    onHoverEnter={({ title, description, date }) => setCaption({ title, description, date })}
                     onHoverLeave={() => setCaption(null)}
                   />
                 ))}
@@ -69,6 +70,11 @@ export const PanoramaSlider: React.FC = () => {
               <div className="mt-6 select-none ">
                 <div className="caption-title text-center text-2xl md:text-3xl font-semibold tracking-wide">{caption.title}</div>
                 <div className="caption-desc text-xl md:text-xl mt-1 max-w-3xl leading-relaxed">{caption.description}</div>
+                {caption.date && (
+                  <div className="caption-date text-center mt-2 text-2xl md:text-2xl font-medium tracking-wide opacity-90">
+                    {caption.date}
+                  </div>
+                )}
               </div>
             )}
           </div>

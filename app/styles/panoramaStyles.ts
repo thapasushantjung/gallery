@@ -71,4 +71,7 @@ export const panoramaStyles = `
   }
   .panorama-section .caption-title { opacity: 0.9; }
   .panorama-section .caption-desc { opacity: 0.8; }
+  .panorama-section .caption-date {
+    letter-spacing: 0.02em;
+  }
 `;
