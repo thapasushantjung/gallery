@@ -1,18 +1,40 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
-import { STIX_Two_Text } from "next/font/google";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { STIX_Two_Text, Space_Mono } from "next/font/google";
 import gsap from "gsap";
 
 const stixTwoText = STIX_Two_Text({
   variable: "--font-stix-two-text",
   subsets: ["latin"],
 });
+const spaceMono = Space_Mono({
+  weight: "700",
+  variable: "--font-space-mono",
+  subsets: ["latin"],
+});
+
+const EMOJIS = ['✺', '✦', '✧', '★', '☆', '✪', '✫', '✬', '✭', '✮', '✯', '✰', '✲', '✳', '✴', '✵', '✶', '✷', '✸', '✹', '✺', '✻', '✼', '✽', '✾', '✿', '❀', '❁', '❂', '❃', '❄', '❅', '❆', '❇', '❈', '❉', '❊', '❋'];
 
 const Title = ({ title }: { title: string }) => {
+  const [isMounted, setIsMounted] = useState(false);
   const stacksRef = useRef<Array<HTMLDivElement | null>>([]);
   const controllersRef = useRef<gsap.core.Tween[]>([]);
   const tweensRef = useRef<gsap.core.Tween[]>([]);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  const randomEmojis = useMemo(() => {
+    const chars = Array.from(title);
+    // Return original characters for SSR to avoid hydration mismatch.
+    // On the client, after mount, this will re-run and generate random emojis.
+    if (!isMounted) {
+      return chars;
+    }
+    return Array.from({ length: title.length }, () => EMOJIS[Math.floor(Math.random() * EMOJIS.length)]);
+  }, [title, isMounted]);
 
   const getDurationForIndex = (i: number) => 2.8 + (i % 7) * 0.35; // 2.8s .. ~5.0s
   const getDelayForIndex = (i: number) => i * 0.06; // slight stagger
@@ -51,7 +73,7 @@ const Title = ({ title }: { title: string }) => {
       if (!el) return;
 
       const base = gsap.to(el, {
-        yPercent: -50,
+        yPercent: -100 * (2 / 3), // move up by 2/3 of the container height
         repeat: 10,
         ease: "none",
       });
@@ -73,12 +95,12 @@ const Title = ({ title }: { title: string }) => {
       controllersRef.current = [];
       tweensRef.current = [];
     };
-  }, [title]);
+  }, [title, randomEmojis]);
 
   const chars = Array.from(title);
 
   return (
-    <h1 className={`${stixTwoText.className} text-7xl`} onMouseEnter={handleMouseEnter}>
+    <h1 className={`${spaceMono.className} text-7xl`} onMouseEnter={handleMouseEnter}>
       {chars.map((ch, i) => {
         if (ch === " ") {
           return (
@@ -95,10 +117,11 @@ const Title = ({ title }: { title: string }) => {
           >
             <div
               className="flex flex-col leading-none"
-              ref={(el) => (stacksRef.current[i] = el)}
+              ref={(el) => { stacksRef.current[i] = el; }}
               style={{ willChange: "transform" }}
             >
               <span className="block">{ch}</span>
+              <span className="block" aria-hidden>{randomEmojis[i] || ch}</span>
               <span className="block">{ch}</span>
             </div>
           </span>

@@ -18,7 +18,7 @@ export const panoramaStyles = `
     max-width: none !important;
     max-height: none !important;
     /* Smooth transitions for hover effects */
-    transition: transform 0.5s ease, filter 0.35s ease;
+    transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1), filter 0.45s ease;
     transform-origin: center center;
     will-change: transform, filter;
   }
@@ -33,7 +33,7 @@ export const panoramaStyles = `
   /* Allow 3D overflow to be visible so content isn't clipped */
   .panorama-box { 
     overflow: visible; 
-    padding-top: 20vh; /* Adjust as needed */
+    padding-top: 18vh; /* slightly reduce for better balance */
     perspective: 1200px;
     perspective-origin: center center;
   }
@@ -47,10 +47,10 @@ export const panoramaStyles = `
 
   /* Interactions: zoom hovered image, grayscale the rest */
   .panorama-slider .swiper:hover .slide-image {
-    filter: grayscale(100%);
+    filter: grayscale(90%);
   }
   .panorama-slider .swiper:hover .swiper-slide:hover .slide-image {
-    transform: scale(1.06);
+    transform: scale(1.05);
     filter: grayscale(0%);
   }
   /* Optional cursor hint */

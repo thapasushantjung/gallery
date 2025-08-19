@@ -4,7 +4,7 @@ import { swiperConfig, AUTO_PROGRESS_DURATION, DEMO_CSS_HREF, SWIPER_JS_SRC } fr
 import gsap from 'gsap';
 
 // Gentle ramp-in when resuming auto-scroll so it feels smooth
-const AUTO_RAMP_IN = 0.45; // seconds
+const AUTO_RAMP_IN = 0.75; // seconds
 
 export const usePanoramaSlider = () => {
   const scrollTween = useRef<gsap.core.Tween | null>(null);
@@ -275,11 +275,17 @@ const setupScrollTrigger = async (swiperInstance: any, stopAuto: (() => void) | 
     if (stopAuto) stopAuto();
 
     // Helper to drive swiper by [0..1]
-    const setByPercent = (p: number) => {
-      const clamped = Math.min(1, Math.max(0, p));
+    const setByPercent = (p: number, isRealProgress: boolean = false) => {
+      let p_real = p;
+      if (!isRealProgress) {
+        // p is from UI (0-1), map to real (0.30-0.70)
+        const clamped = Math.min(1, Math.max(0, p));
+        p_real = 0.30 + clamped * (0.70 - 0.30);
+      }
+      
       const min = swiperInstance.minTranslate();
       const max = swiperInstance.maxTranslate();
-      const target = min + clamped * (max - min);
+      const target = min + p_real * (max - min);
       swiperInstance.translateTo(target, 0, false, false);
     };
 
@@ -289,7 +295,7 @@ const setupScrollTrigger = async (swiperInstance: any, stopAuto: (() => void) | 
       const max = swiperInstance.maxTranslate();
       const range = Math.abs(max - min) || 1000; // px
       // increase factor to guarantee full coverage
-      return `+=${Math.max(1200, Math.round(range * 1.25))}`;
+      return `+=${Math.max(1200, Math.round(range * 1.30))}`;
     };
 
     // Kill any previous trigger
@@ -301,12 +307,16 @@ const setupScrollTrigger = async (swiperInstance: any, stopAuto: (() => void) | 
       trigger: container,
       start: 'top top',
       end: endDistance, // recalculated on refresh
-      scrub: true, // no smoothing so end is exact
+      scrub: 0.6, // add gentle smoothing for a silkier feel
       pin: true,
       invalidateOnRefresh: true,
       // markers: true,
-      onUpdate: (self: any) => setByPercent(self.progress),
-      onRefresh: () => setByPercent(0),
+      onUpdate: (self: any) => {
+        // Map the 0-1 progress to the 0.30-0.70 range
+        const limitedProgress = 0.30 + self.progress * (0.70 - 0.30);
+        setByPercent(limitedProgress, true);
+      },
+      onRefresh: () => setByPercent(0.30, true),
     });
 
     // Keep ScrollTrigger in sync with Swiper/layout changes so the end is reachable
@@ -351,18 +361,28 @@ const setupPercentageControl = (swiperInstance: any) => {
       ? -(swiperInstance.translate || 0)
       : (swiperInstance.translate || 0);
     const denom = max - min || 1;
-    const p = (logicalT - min) / denom;
-    const val = Math.round(Math.min(1, Math.max(0, p)) * 100);
+    const p_real = (logicalT - min) / denom;
+
+    // Map real progress (0.30-0.70) back to UI progress (0-1)
+    const p_ui = (p_real - 0.30) / (0.70 - 0.30);
+
+    const val = Math.round(Math.min(1, Math.max(0, p_ui)) * 100);
     percentInput.value = String(val);
     if (percentLabel) percentLabel.textContent = `${val}%`;
   };
 
   // Utility to drive swiper by percent [0..1]
-  const setByPercent = (p: number) => {
-    const clamped = Math.min(1, Math.max(0, p));
+  const setByPercent = (p: number, isRealProgress: boolean = false) => {
+    let p_real = p;
+    if (!isRealProgress) {
+      // p is from UI (0-1), map to real (0.30-0.70)
+      const clamped = Math.min(1, Math.max(0, p));
+      p_real = 0.30 + clamped * (0.70 - 0.30);
+    }
+    
     const min = swiperInstance.minTranslate();
     const max = swiperInstance.maxTranslate();
-    const target = min + clamped * (max - min);
+    const target = min + p_real * (max - min);
     swiperInstance.translateTo(target, 0, false, false);
   };
 
@@ -379,7 +399,7 @@ const setupPercentageControl = (swiperInstance: any) => {
   const startAuto = () => {
     paused = false;
     if (rafId != null) cancelAnimationFrame(rafId);
-    // start from 0%
+    // start from 0% (of the UI, which is 30% of real)
     setByPercent(0);
     const start = performance.now();
     const tick = (now: number) => {
@@ -399,10 +419,7 @@ const setupPercentageControl = (swiperInstance: any) => {
     pauseAuto();
     const val = Number(percentInput.value);
     const p = Math.min(100, Math.max(0, val)) / 100;
-    const min = swiperInstance.minTranslate();
-    const max = swiperInstance.maxTranslate();
-    const target = min + p * (max - min);
-    swiperInstance.translateTo(target, 0, false, false);
+    setByPercent(p);
   };
 
   // Setup event listeners
