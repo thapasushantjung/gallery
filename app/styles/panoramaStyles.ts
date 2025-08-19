@@ -17,6 +17,10 @@ export const panoramaStyles = `
     object-fit: cover;
     max-width: none !important;
     max-height: none !important;
+    /* Smooth transitions for hover effects */
+    transition: transform 0.5s ease, filter 0.35s ease;
+    transform-origin: center center;
+    will-change: transform, filter;
   }
   
   /* Pin wrapper ensures GSAP pinning behaves as expected */
@@ -40,4 +44,15 @@ export const panoramaStyles = `
   .panorama-slider .swiper,
   .panorama-slider .swiper-wrapper,
   .panorama-slider .swiper-slide { overflow: visible !important; }
+
+  /* Interactions: zoom hovered image, grayscale the rest */
+  .panorama-slider .swiper:hover .slide-image {
+    filter: grayscale(100%);
+  }
+  .panorama-slider .swiper:hover .swiper-slide:hover .slide-image {
+    transform: scale(1.06);
+    filter: grayscale(0%);
+  }
+  /* Optional cursor hint */
+  .panorama-slider .swiper-slide { cursor: zoom-in; }
 `;
