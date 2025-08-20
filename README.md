@@ -1,50 +1,58 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Chill
+
+This is a Next.js app with an admin uploader that sends images to ImgChest and lists posts from an npoint.io bin.
 
 ## Getting Started
 
-First, run the development server:
+1) Copy environment template and fill values
+- Duplicate `.env.example` as `.env.local` and set all required variables (see below).
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Admin Uploader
-
-This Next.js app includes a simple admin panel at `/admin` to upload images to ImgChest via a secure server route.
-
-### Setup
-
-1. Copy `.env.example` to `.env.local` and fill values.
-2. Ensure `NEXT_PUBLIC_IMG_CHEST_TOKEN` is set (server-only).
-3. Provide Firebase Web SDK config (NEXT_PUBLIC_ vars) and Admin SDK service account envs.
-4. Set `NEXT_PUBLIC_ADMIN_EMAIL` to your email used for Google sign-in.
-
-### Run
-
+2) Install and run
+- npm install
 - npm run dev
 
-### How it works
+Open http://localhost:3000.
 
-- Client (`/admin`) authenticates with Firebase Google auth.
-- The server API (`/api/admin/upload`) verifies the Firebase ID token and checks email matches `NEXT_PUBLIC_ADMIN_EMAIL`.
-- The server forwards files to ImgChest using `NEXT_PUBLIC_IMG_CHEST_TOKEN` from server env.
+## Environment variables
+Paste these in `.env.local` (see `.env.example` for comments):
 
-### Security
+- Client (public)
+  - NEXT_PUBLIC_FIREBASE_API_KEY
+  - NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+  - NEXT_PUBLIC_FIREBASE_PROJECT_ID
+  - NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+  - NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+  - NEXT_PUBLIC_FIREBASE_APP_ID
+  - NEXT_PUBLIC_ADMIN_EMAIL (Google account allowed into /admin)
 
-- Never expose `NEXT_PUBLIC_IMG_CHEST_TOKEN` on the client.
-- Keep Firebase Admin private key safe. If pasting into env, keep `\n` escapes.
+- Server
+  - NEXT_PUBLIC_IMG_CHEST_TOKEN (used by API routes when calling ImgChest)
+  - NEXT_PUBLIC_NPOINT_ID (npoint.io bin that stores ImgChest post IDs)
+  - FIREBASE_PROJECT_ID
+  - FIREBASE_CLIENT_EMAIL
+  - FIREBASE_PRIVATE_KEY (keep \n escapes)
+
+Notes
+- Do not commit `.env.local`.
+- The token is read only on server routes; avoid using it in client code.
+
+## Features
+- /admin: Google sign-in (Firebase) gated by NEXT_PUBLIC_ADMIN_EMAIL, upload multiple images to ImgChest, optional title and description.
+- /api/admin/upload: verifies Firebase ID token server-side, uploads to ImgChest, optionally updates first image description, appends post ID to npoint bin.
+- /api/posts: reads post IDs from npoint bin, fetches each ImgChest post, returns title, first image, description, and created date formatted via `formatDateToMonthYear`.
+
+## Security
+- Keep Firebase Admin private key safe. If pasting, preserve literal \n newlines.
+- Never expose sensitive tokens in client code.
+
+## Scripts
+- dev: next dev --turbopack
+- build: next build
+- start: next start
+
+## Deployment
+- Provide the same env vars in your hosting platform.
+- Ensure body size limits are sufficient for uploads (serverActions bodySizeLimit is set to 20mb in next.config.ts).
 
 ## Learn More
 
