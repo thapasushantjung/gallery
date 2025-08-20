@@ -20,6 +20,32 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Admin Uploader
+
+This Next.js app includes a simple admin panel at `/admin` to upload images to ImgChest via a secure server route.
+
+### Setup
+
+1. Copy `.env.example` to `.env.local` and fill values.
+2. Ensure `IMG_CHEST_TOKEN` is set (server-only).
+3. Provide Firebase Web SDK config (NEXT_PUBLIC_ vars) and Admin SDK service account envs.
+4. Set `NEXT_PUBLIC_ADMIN_EMAIL` to your email used for Google sign-in.
+
+### Run
+
+- npm run dev
+
+### How it works
+
+- Client (`/admin`) authenticates with Firebase Google auth.
+- The server API (`/api/admin/upload`) verifies the Firebase ID token and checks email matches `NEXT_PUBLIC_ADMIN_EMAIL`.
+- The server forwards files to ImgChest using `IMG_CHEST_TOKEN` from server env.
+
+### Security
+
+- Never expose `IMG_CHEST_TOKEN` on the client.
+- Keep Firebase Admin private key safe. If pasting into env, keep `\n` escapes.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
