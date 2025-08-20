@@ -4,7 +4,7 @@ import { swiperConfig, AUTO_PROGRESS_DURATION, DEMO_CSS_HREF, SWIPER_JS_SRC } fr
 import gsap from 'gsap';
 
 // Gentle ramp-in when resuming auto-scroll so it feels smooth
-const AUTO_RAMP_IN = 0.75; // seconds
+const AUTO_RAMP_IN = 0.15; // seconds - reduced from 0.75 to 0.15
 
 export const usePanoramaSlider = () => {
   const scrollTween = useRef<gsap.core.Tween | null>(null);
@@ -90,19 +90,9 @@ export const usePanoramaSlider = () => {
             ease: 'none',
             onStart: () => { isAutoScrollingRef.current = true; },
             onUpdate: () => { isAutoScrollingRef.current = true; },
-            onComplete: () => { isAutoScrollingRef.current = false; startAutoScroll((direction > 0 ? -1 : 1)); },
-          });
-          // Smoothly accelerate into auto-scroll so it doesn't feel abrupt
-          if (scrollTween.current) {
-            try { (scrollTween.current as any).timeScale?.(0.001); } catch {}
-            try {
-              rampTween.current = gsapLocal.to(scrollTween.current, {
-                timeScale: 1,
-                duration: AUTO_RAMP_IN,
-                ease: 'power2.out',
-              });
-            } catch {}
-          }
+            onComplete: () => { isAutoScrollingRef.current = false; startAutoScroll((direction > 0 ? -1 : 1)); },          });
+          // Start at full speed immediately - no ramp-in delay
+          isAutoScrollingRef.current = true;
           lastDir.current = direction;
         };
         const pauseAuto = () => {
