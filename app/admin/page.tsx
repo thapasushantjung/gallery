@@ -7,6 +7,7 @@ export default function AdminPage() {
   const [user, setUser] = useState<null | { email: string; idToken: string }>(null);
   const [loading, setLoading] = useState(true);
   const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
   const [files, setFiles] = useState<FileList | null>(null);
   const adminEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL;
 
@@ -45,6 +46,7 @@ export default function AdminPage() {
 
     const fd = new FormData();
     if (title) fd.append('title', title);
+    if (description) fd.append('description', description);
     Array.from(files).forEach((f) => fd.append('images[]', f));
 
     const res = await fetch('/api/admin/upload', {
@@ -91,6 +93,12 @@ export default function AdminPage() {
           placeholder="Optional title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
+          className="border rounded p-2"
+        />
+        <textarea
+          placeholder="Optional description for all images"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
           className="border rounded p-2"
         />
         <input

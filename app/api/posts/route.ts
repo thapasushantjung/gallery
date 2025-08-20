@@ -46,7 +46,7 @@ export async function GET(req: NextRequest) {
                 .sort((a: any, b: any) => (a?.position ?? 0) - (b?.position ?? 0))[0] ?? images[0];
 
               const src = first?.link ?? null;
-              const description = data?.description ?? null;
+              const description = first?.description ?? null;
               const UnformattedDate = data?.created ?? null;
               const date = formatDateToMonthYear(UnformattedDate);
 

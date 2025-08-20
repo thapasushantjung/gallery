@@ -36,6 +36,7 @@ export async function POST(req: NextRequest) {
   // Parse multipart/form-data
   const formData = await req.formData();
   const title = formData.get('title')?.toString() ?? '';
+  const description = formData.get('description')?.toString() ?? '';
   const files = formData.getAll('images[]');
 
   if (!files.length) {
@@ -72,7 +73,38 @@ export async function POST(req: NextRequest) {
   if (!res.ok) {
     return NextResponse.json({ error: 'Upload failed', details: data }, { status: res.status });
   }
-   // NPoint integration
+
+  // If description exists and we have a first image, update its description
+  if (description && data.data?.images?.[0]?.id) {
+    try {
+      const firstImageId = data.data.images[0].id;
+      console.log(`Updating description for image ID: ${firstImageId}`);
+      
+      const updateBody = { description };
+      console.log('PATCH request to ImgChest file API:', JSON.stringify(updateBody, null, 2));
+      
+      const updateResponse = await fetch(`https://api.imgchest.com/v1/file/${firstImageId}`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${imgChestToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(updateBody)
+      });
+      
+      const updateResult = await updateResponse.json().catch(() => ({ success: false }));
+      console.log('File description update response:', JSON.stringify(updateResult, null, 2));
+      
+      if (!updateResponse.ok) {
+        console.error(`Failed to update file description. Status: ${updateResponse.status}`);
+      }
+    } catch (e) {
+      console.error('Error updating file description:', e);
+      // Continue with the rest of the process even if description update fails
+    }
+  }
+
+  // NPoint integration
   const npointId = process.env.NEXT_PUBLIC_NPOINT_ID;
   if (npointId && data.data?.id) {
     try {
