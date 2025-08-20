@@ -27,7 +27,7 @@ This Next.js app includes a simple admin panel at `/admin` to upload images to I
 ### Setup
 
 1. Copy `.env.example` to `.env.local` and fill values.
-2. Ensure `IMG_CHEST_TOKEN` is set (server-only).
+2. Ensure `NEXT_PUBLIC_IMG_CHEST_TOKEN` is set (server-only).
 3. Provide Firebase Web SDK config (NEXT_PUBLIC_ vars) and Admin SDK service account envs.
 4. Set `NEXT_PUBLIC_ADMIN_EMAIL` to your email used for Google sign-in.
 
@@ -39,11 +39,11 @@ This Next.js app includes a simple admin panel at `/admin` to upload images to I
 
 - Client (`/admin`) authenticates with Firebase Google auth.
 - The server API (`/api/admin/upload`) verifies the Firebase ID token and checks email matches `NEXT_PUBLIC_ADMIN_EMAIL`.
-- The server forwards files to ImgChest using `IMG_CHEST_TOKEN` from server env.
+- The server forwards files to ImgChest using `NEXT_PUBLIC_IMG_CHEST_TOKEN` from server env.
 
 ### Security
 
-- Never expose `IMG_CHEST_TOKEN` on the client.
+- Never expose `NEXT_PUBLIC_IMG_CHEST_TOKEN` on the client.
 - Keep Firebase Admin private key safe. If pasting into env, keep `\n` escapes.
 
 ## Learn More

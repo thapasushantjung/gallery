@@ -34,10 +34,20 @@ export const PanoramaSlider: React.FC = () => {
     }
   }, [caption, captionEl]);
 
+  const hancleAPI = async () => {
+    const res = await fetch('/api/posts');
+    if (!res.ok) {
+      console.error('Failed to fetch data');
+      return;
+    }
+    const data = await res.json();
+    console.log('Fetched IDs:', data);
+  }
+
   return (
     <>
       <div className="panorama-section">
-        <div className="absolute top-1/5 left-1/2 -translate-x-1/2 -translate-y-1/2 z-500">
+        <div onClick={hancleAPI} className="absolute top-1/5 left-1/2 -translate-x-1/2 -translate-y-1/2 z-500">
           <Title title="Gall" />
         </div>
         <div className="panorama-box" style={{ width: '100%', overflow: 'visible' }}>
