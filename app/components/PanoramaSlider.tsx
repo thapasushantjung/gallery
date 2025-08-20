@@ -39,7 +39,7 @@ export const PanoramaSlider: React.FC = () => {
     <>
       <div className="panorama-section">
         <div className="absolute top-1/5 left-1/2 -translate-x-1/2 -translate-y-1/2 z-500">
-          <Title title="SUSHANT GALLERY" />
+          <Title title="HANCY" />
         </div>
         <div className="panorama-box" style={{ width: '100%', overflow: 'visible' }}>
           <div className="panorama-slider">
