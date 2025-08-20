@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from "react";
 import { usePanoramaSlider } from '../hooks/usePanoramaSlider';
 import { SlideImage } from './SlideImage';
-import { PanoramaControls } from './PanoramaControls';
 import { panoramaStyles } from '../styles/panoramaStyles';
 import Title from "./Title";
 import gsap from 'gsap';
@@ -39,7 +38,7 @@ export const PanoramaSlider: React.FC = () => {
     <>
       <div className="panorama-section">
         <div className="absolute top-1/5 left-1/2 -translate-x-1/2 -translate-y-1/2 z-500">
-          <Title title="HANCY" />
+          <Title title="Gall" />
         </div>
         <div className="panorama-box" style={{ width: '100%', overflow: 'visible' }}>
           <div className="panorama-slider">
