@@ -4,6 +4,8 @@ import { usePanoramaSlider } from '../hooks/usePanoramaSlider';
 import { SlideImage } from './SlideImage';
 import { panoramaStyles } from '../styles/panoramaStyles';
 import Title from "./Title";
+import Loader from "./Loader";
+import SpaceBackground from "./SpaceBackground";
 import gsap from 'gsap';
 
 // Replace hardcoded slides with a type definition
@@ -17,9 +19,9 @@ type Slide = {
 export const PanoramaSlider: React.FC = () => {
   usePanoramaSlider();
   const [caption, setCaption] = useState<{ title: string; description: string; date?: string } | null>(null);
-  const [captionEl, setCaptionEl] = useState<HTMLDivElement | null>(null);
-  const [slides, setSlides] = useState<Slide[]>([]);
+  const [captionEl, setCaptionEl] = useState<HTMLDivElement | null>(null);  const [slides, setSlides] = useState<Slide[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   useEffect(() => {
     if (!captionEl) return;
@@ -57,29 +59,57 @@ export const PanoramaSlider: React.FC = () => {
           }
         }
       }
-      
-      console.log('Fetched slides:', slidesArray);
+        console.log('Fetched slides:', slidesArray);
       setSlides(slidesArray);
     } catch (error) {
       console.error('Error fetching images:', error);
       setSlides([]);
     } finally {
-      setLoading(false);
+      // Add transition delay for smoother experience
+      setIsTransitioning(true);
+      setTimeout(() => {
+        setLoading(false);
+        setTimeout(() => {
+          setIsTransitioning(false);
+        }, 800); // Match transition duration
+      }, 500); // Small delay before starting transition
     }
   };
+  // Fade in panorama content when loading completes
+  useEffect(() => {
+    if (!loading) {
+      const panoramaContent = document.querySelector('.panorama-content');
+      if (panoramaContent) {
+        gsap.fromTo(panoramaContent, 
+          { opacity: 0, y: 30 }, 
+          { opacity: 1, y: 0, duration: 1.2, ease: 'power2.out' }
+        );
+      }
+    }
+  }, [loading]);
 
   // Fetch slides when component mounts
   useEffect(() => {
     fetchImages();
-  }, []);
-
-  return (
+  }, []);  return (
     <>
-      <div className="panorama-section">
+      {loading && (
+        <div className={`fixed inset-0 z-[9999] flex items-center justify-center transition-all duration-1000 ease-in-out ${
+          isTransitioning ? 'opacity-0 scale-105' : 'opacity-100 scale-100'
+        }`}>
+          <SpaceBackground />
+          <div className="relative z-10">
+            <Loader />
+          </div>
+        </div>
+      )}
+      <div className={`panorama-section transition-all duration-1000 ease-in-out transform ${
+        loading ? 'opacity-0 scale-95 translate-y-4' : 'opacity-100 scale-100 translate-y-0'
+      }`}>
         <div onClick={fetchImages} className="absolute top-1/5 left-1/2 -translate-x-1/2 -translate-y-1/2 z-500">
           <Title title="Gall" />
         </div>
-        <div className="panorama-box" style={{ width: '100%', overflow: 'visible' }}>
+        <div className="panorama-box panorama-content" style={{ width: '100%', overflow: 'visible' }}>
           <div className="panorama-slider">
             <div className="swiper">
               <div className="swiper-wrapper">
